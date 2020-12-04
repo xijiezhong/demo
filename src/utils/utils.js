@@ -31,12 +31,13 @@ export const animeVanish = (selector) => {
   })
 }
 
-export const animeMoveCenter = (selector) => {
-  anime({
+export const animeMoveCenter = (selector, isLeft) => {
+  const options = {
     targets: selector,
-    marginLeft: '-25%',
+    marginLeft: isLeft ? '-25%' : '25%',
     duration: 800,
     delay: 1200,
     easing: 'easeInOutQuad'
-  })
+  }
+  anime(options)
 }

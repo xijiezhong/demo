@@ -23,16 +23,22 @@
             v-if="showFirstOption"
             class="option-wrapper images-wrapper">
             <el-image
-              @click="handleSelect(false)"
+              @click="handleSelect(options[0].validity)"
               class="first-option-image"
               :class="{ 'can-select': !playStatus && !selectRightAnswer }"
               style="width: 200px; height: 200px"
-              :src="require('@/assets/images/egg.png')">
+              :src="options[0].src">
             </el-image>
             <el-image
               class="first-option-validity"
               style="width: 50px; height: 50px;position: absolute;bottom: 50px;opacity: 0"
-              :src="require('@/assets/images/wrong.png')">
+              :src="options[0].validSrc">
+            </el-image>
+            <el-image
+              v-if="options[0].validity"
+              class="option-background"
+              style="width: 350px; height: 350px;position: absolute;bottom: 50px;opacity: 0;z-index: -1"
+              :src="options[0].backgroundSrc">
             </el-image>
           </div>
         </div>
@@ -41,21 +47,22 @@
             v-if="showSecondOption"
             class="option-wrapper images-wrapper">
             <el-image
-              @click="handleSelect(true)"
+              @click="handleSelect(options[1].validity)"
               class="second-option-image"
               :class="{ 'can-select': !playStatus && !selectRightAnswer }"
               style="width: 200px; height: 200px"
-              :src="require('@/assets/images/hatch.png')">
+              :src="options[1].src">
             </el-image>
             <el-image
               class="second-option-validity"
               style="width: 50px; height: 50px;position: absolute;bottom: 50px;opacity: 0"
-              :src="require('@/assets/images/right.png')">
+              :src="options[1].validSrc">
             </el-image>
             <el-image
-              class="second-option-background"
+              v-if="options[1].validity"
+              class="option-background"
               style="width: 350px; height: 350px;position: absolute;bottom: 50px;opacity: 0;z-index: -1"
-              :src="require('@/assets/images/wave_gif.gif')">
+              :src="options[0].backgroundSrc">
             </el-image>
           </div>
         </div>
@@ -95,10 +102,12 @@ export default {
       showFirstOption: false,
       showSecondOption: false,
       playStatus: false,
-      selectRightAnswer: false
+      selectRightAnswer: false,
+      options: []
     }
   },
   beforeMount () {
+    this.randomOptions()
     this.initIntroPlayList()
     this.initWrongSound()
     this.initRightSound()
@@ -115,6 +124,26 @@ export default {
     this.playList()
   },
   methods: {
+    randomOptions () {
+      this.options = [
+        {
+          src: require('@/assets/images/egg.png'),
+          validSrc: require('@/assets/images/wrong.png'),
+          validity: false
+        },
+        {
+          src: require('@/assets/images/hatch.png'),
+          validSrc: require('@/assets/images/right.png'),
+          backgroundSrc: require('@/assets/images/wave_gif.gif'),
+          validity: true
+        }
+      ]
+      const randomNumber = Math.random()
+      if (randomNumber > 0.5) {
+        this.options.reverse()
+        this.wordList = [soundA, hatch, egg]
+      }
+    },
     initIntroPlayList () {
       const len = this.introList.length
       this.introList.forEach((item, index) => {
@@ -196,11 +225,12 @@ export default {
             return
           }
           if (index === 2) {
-            animeVisible('.second-option-background')
+            animeVisible('.option-background')
             return
           }
           if (index === 3) {
-            animePulse('.second-option-image')
+            const selector = this.options[0].validity ? '.first-option-image' : '.second-option-image'
+            animePulse(selector)
           }
         })
         this.endPlayList.push({
@@ -237,7 +267,8 @@ export default {
         src: [dong]
       })
       sound.on('play', () => {
-        animeVisible('.first-option-validity')
+        const selector = this.options[0].validity ? '.second-option-validity' : '.first-option-validity'
+        animeVisible(selector)
       })
       sound.on('end', () => {
         this.playList()
@@ -249,9 +280,19 @@ export default {
         src: [ding]
       })
       sound.once('play', () => {
-        animeVisible('.second-option-validity')
-        animeVanish('.first-option-image')
-        animeMoveCenter('.second-option-assistor')
+        const selector = this.options[0].validity ? {
+          visible: '.first-option-validity',
+          vanish: '.second-option-image',
+          moveCenter: '.first-option-assistor'
+        } : {
+          visible: '.second-option-validity',
+          vanish: '.first-option-image',
+          moveCenter: '.second-option-assistor'
+        }
+        const isLeft = !this.options[0].validity
+        animeVisible(selector.visible)
+        animeVanish(selector.vanish)
+        animeMoveCenter(selector.moveCenter, isLeft)
       })
       sound.once('end', () => {
         this.initEndPlayList()
@@ -264,7 +305,8 @@ export default {
         src: [hatch]
       })
       sound.once('play', () => {
-        animePulse('.second-option-image')
+        const selector = this.options[0].validity ? '.first-option-image' : '.second-option-image'
+        animePulse(selector)
       })
       sound.once('end', () => {
         this.rightSound.play()
