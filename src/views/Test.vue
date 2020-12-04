@@ -1,6 +1,14 @@
 <template>
   <div class="test-wrapper">
-    <div class="images-row-wrapper">
+    <div v-show="showStartBtn">
+      <el-button
+        @click="startTest"
+        type="primary"
+        round>
+        开始测试
+      </el-button>
+    </div>
+    <div v-show="!showStartBtn" class="images-row-wrapper">
       <div class="assistor">
         <div class="mouth-wrapper images-wrapper">
           <el-image
@@ -103,6 +111,7 @@ export default {
       showSecondOption: false,
       playStatus: false,
       selectRightAnswer: false,
+      showStartBtn: true,
       options: []
     }
   },
@@ -120,10 +129,11 @@ export default {
     this.stopAllPlay()
     next()
   },
-  mounted () {
-    this.playList()
-  },
   methods: {
+    startTest () {
+      this.showStartBtn = false
+      this.playList()
+    },
     randomOptions () {
       this.options = [
         {
