@@ -120,22 +120,10 @@ export default {
         })
         sound.once('end', () => {
           if (this.playIndex === len - 1) {
-            this.stopListPlay()
-            anime({
-              targets: '.assistor',
-              left: '200px',
-              duration: 500,
-              easing: 'easeInOutQuad'
-            }).finished.then(() => {
-              this.showOptions = true
-              this.initWordPlayList()
-              this.playList()
-            })
-          } else {
-            this.playIndex += 1
-            this.sound = this.introPlayList[this.playIndex].howl
-            this.playList()
+            this.onIntroEnd()
+            return
           }
+          this.playNext(this.introPlayList)
         })
         if (index === 1) {
           sound.once('play', () => {
@@ -157,35 +145,29 @@ export default {
         sound.on('end', () => {
           if (this.playIndex === 0) {
             this.showFirstOption = true
+            this.playNext(this.wordPlayList)
+            return
           }
           if (this.playIndex === 1) {
             this.showSecondOption = true
+            this.playNext(this.wordPlayList)
+            return
           }
           if (this.playIndex === len - 1) {
-            this.canSelect = true
-            this.stopListPlay()
-            this.sound = this.wordPlayList[this.playIndex].howl
-          } else {
-            this.playIndex += 1
-            this.sound = this.wordPlayList[this.playIndex].howl
-            this.playList()
+            this.onWordEnd()
           }
         })
-        if (index === 0) {
-          sound.on('play', () => {
+        sound.on('play', () => {
+          if (index === 0) {
             animePulse('.mouth-image')
-          })
-        }
-        if (index === 1) {
-          sound.on('play', () => {
+            return
+          }
+          if (index === 1) {
             animePulse('.first-option-image')
-          })
-        }
-        if (index === 2) {
-          sound.on('play', () => {
-            animePulse('.second-option-image')
-          })
-        }
+            return
+          }
+          animePulse('.second-option-image')
+        })
         this.wordPlayList.push({
           howl: sound
         })
@@ -201,32 +183,51 @@ export default {
         sound.on('end', () => {
           if (this.playIndex === len - 1) {
             this.stopListPlay()
-          } else {
-            this.playIndex += 1
-            this.sound = this.endPlayList[this.playIndex].howl
-            this.playList()
+            return
+          }
+          this.playNext(this.endPlayList)
+        })
+        sound.on('play', () => {
+          if (index === 0 || index === 1) {
+            animePulse('.mouth-image')
+            return
+          }
+          if (index === 2) {
+            animeVisible('.second-option-background')
+            return
+          }
+          if (index === 3) {
+            animePulse('.second-option-image')
           }
         })
-        if (index === 0 || index === 1) {
-          sound.on('play', () => {
-            animePulse('.mouth-image')
-          })
-        }
-        if (index === 2) {
-          sound.on('play', () => {
-            animeVisible('.second-option-background')
-          })
-        }
-        if (index === 3) {
-          sound.on('play', () => {
-            animePulse('.second-option-image')
-          })
-        }
         this.endPlayList.push({
           howl: sound
         })
       })
       this.sound = this.endPlayList[this.playIndex].howl
+    },
+    onIntroEnd () {
+      this.stopListPlay()
+      anime({
+        targets: '.assistor',
+        left: '200px',
+        duration: 500,
+        easing: 'easeInOutQuad'
+      }).finished.then(() => {
+        this.showOptions = true
+        this.initWordPlayList()
+        this.playList()
+      })
+    },
+    onWordEnd () {
+      this.canSelect = true
+      this.stopListPlay()
+      this.sound = this.wordPlayList[this.playIndex].howl
+    },
+    playNext (playList) {
+      this.playIndex += 1
+      this.sound = playList[this.playIndex].howl
+      this.playList()
     },
     initWrongSound () {
       const sound = new Howl({
