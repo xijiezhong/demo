@@ -319,7 +319,7 @@ export default {
   flex-direction: row;
   justify-content: flex-start;
   position: relative;
-  padding-left: 400px;
+  padding-left: 350px;
 }
 .all-options-wrapper {
   width: 100%;
@@ -336,7 +336,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 400px;
+  min-width: 350px;
   height: 400px;
   left: 50%;
   top: 50%;
