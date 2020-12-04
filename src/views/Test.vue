@@ -104,9 +104,12 @@ export default {
     this.initRightSound()
     this.initRightOptionSound()
     window.onbeforeunload = () => {
-      this.sound && this.sound.stop()
-      this.rightOptionSound && this.rightOptionSound.stop()
+      this.stopAllPlay()
     }
+  },
+  beforeRouteLeave (to, from, next) {
+    this.stopAllPlay()
+    next()
   },
   mounted () {
     this.playList()
@@ -291,6 +294,10 @@ export default {
         this.playStatus = false
         this.playIndex = 0
       }
+    },
+    stopAllPlay () {
+      this.sound && this.sound.stop()
+      this.rightOptionSound && this.rightOptionSound.stop()
     }
   }
 }
